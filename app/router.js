@@ -2,7 +2,7 @@
  * @Author: 温少昌 wenshaochang@huizhihuyu.com
  * @Date: 2024-03-05 14:06:10
  * @LastEditors: 温少昌 wenshaochang@huizhihuyu.com
- * @LastEditTime: 2024-03-08 16:25:10
+ * @LastEditTime: 2024-03-08 17:15:14
  * @FilePath: /egg/app/router.js
  * @Description: 约定式开发 router
  */
@@ -30,4 +30,8 @@ module.exports = app => {
   router.post('/api/user/login', controller.user.login);
   // 通过 token 拿用户信息
   router.get('/api/user/verify', _jwt, controller.user.verify);
+  // 获取用户信息
+  router.get('/api/user/get_userinfo', _jwt, controller.user.getUserInfo);
+  // 修改个性签名
+  router.post('/api/user/edit_userinfo', _jwt, controller.user.editUserInfo);
 };
