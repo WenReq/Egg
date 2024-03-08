@@ -67,3 +67,132 @@ module.exports = {
   }
 };
 ```
+
+## MySQL
+
+> 将数据持久化存储的一个容器，并且这个容器处在云端。
+
+在命令行输入 `mysql -u root -p` 命令，会提示「commod not found」，我们还需要将 `mysql` 加入系统环境变量。
+
+1. 进入 `/usr/local/mysql/bin`，查看此目录下是否有 `mysql`
+2. 我们在命令行执行指令：`vim ~/.bash_profile`。打开之后，点击键盘 「i」键，进入编辑模式，在 `.bash_profile` 中添加 `mysql/bin` 的目录，结束后点击键盘 「esc」退出编辑，输入 「:wq」回车保存。
+
+![.base_profile](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0ae7412f25a4494abf8e294a744a30b5~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.png)
+
+最后在命令行输入：`source ~/.bash_profile`。再次输入指令尝试登录数据库，如下所示：
+
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e1b563726de846d7af037f5d8f019bb0~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.png)
+
+3. 此时我们要开启服务，就用如下指令：`mysql.server start`
+
+### 安装 egg-mysql 插件
+
+```shell
+npm install egg-mysql
+```
+
+```js
+// config/config.default.js
+// 添加 mysql 连接配置项
+  config.mysql = {
+    // 单数据库信息配置
+    client: {
+      // host
+      host: 'localhost',
+      // 端口号
+      port: '3306',
+      // 用户名
+      user: 'root',
+      // 密码
+      password: 'admin123', // 初始化密码，没设置的可以不写
+      // 数据库名
+      database: 'test', // 我们新建的数据库名称
+    },
+    // 是否加载到 app 上，默认开启
+    app: true,
+    // 是否加载到 agent 上，默认关闭
+    agent: false,
+  };
+```
+
+### 数据库设计的原则
+
+1. 设计数据库的时间要充裕
+2. 多考虑一些性能和优化
+3. 添加必要的（冗余）字段
+4. 设计合理的表关联（表与表之间的关系复杂的情况下，建议采用第三张映射表来维系两张表之间的关系，达到降低表之间的直接耦合度。）
+
+#### 用户表
+
+![user_table](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bf742e82cb4a4b3f83941b59f1dc2928~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.png)
+
+- id
+- username
+- password
+- signature
+- avatar
+- ctime
+
+#### 账单表
+
+![bill_table](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0313f4074ed64580b6f1c8dc8bf72083~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.png)
+
+上图为账单首页，首页顶部有两个信息，代表当月「总支出」和「总收入」。一笔账单记为一项，每一项账单包括几个关键属性，分别是账单的**类型**（收入或指出）、账单的**种类**（服饰、交通、奖金等）、账单的**金额**、账单的**日期时间**、账单的**备注**（当种类无法描述清楚时使用）。
+
+- `id`：每张表都需要一个主键，我们照旧，用 id 作为「账单表」的属性。
+- `pay_type`：账单类型，账单无非就是两种类型，支出和收入，我们用 pay_type 作为类型字段，这里约定好 1 为支出，2 为收入。
+- `amount`：账单价格，每个账单都需有一个价格属性，表示该笔账单你消费或收入了多少钱。
+- `date`：账单日期，日期可自由选择，以时间戳的形式存储。
+- `type_id`：账单标签 id，如餐饮、交通、日用、学习、购物等。
+- `type_name`：账单标签名称，如餐饮、交通、日用、学习、购物等。
+- `user_id`：账单归属的用户 id，有多个用户来注册使用，所以存储账单的时候，需要将用户的 id 带上，便于后面查询账单列表之时，过滤出该用户的账单。
+- `remark`：账单备注。
+
+#### 标签表 type
+
+一开始我是想在前端把标签定死，比如服饰、交通、医疗等等这类账单种类，写成一个静态的对象，供前端项目使用。但是这样做有一个不好的地方，后续如果希望让用户自己添加自定义标签，就不好拓展。所以这里我们在数据库中设置一张 `type` 表，让用户可以灵活的设置属于自己的自定义标签。
+
+- `id`：唯一标识，设为主键。
+- `name`：标签名称，如餐饮、交通、日用、学习、购物等。
+- `type`：标签类型，默认 `1` 为收入，`2` 为支出。
+- `user_id`：保留字段，设置该标签的用户归属，默认 `0` 为全部用户可见，某个用户单独设置的标签，`user_id` 就是该用户的用户 `id`，在获取列表的时候，方便过滤。
+
+## 鉴权 egg-jwt
+
+鉴权就是用户在浏览网页或 App 时，通过约定好的方式，让网页和用户建立起一种相互信赖的机制，继而返回给用户需要的信息。
+
+- HTTP Basic Authentication
+- session-token
+- Token 令牌
+- OAuth（开放授权）
+
+![注册流程](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/14f50febe2c749b486f7cb2fb4491809~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.png)
+
+### egg-jwt
+
+`npm i egg-jwt -S`
+
+在 `config/plugin.js` 下添加插件：
+
+```js
+jwt: {
+  enable: true,
+  package: 'egg-jwt'
+}
+```
+
+紧接着前往 `config/config.default.js` 下添加自定义加密字符串：
+
+```js
+config.jwt = {
+  secret: 'wen'
+}
+```
+
+### egg 中间件编写
+
+在请求接口的时候，过一层中间件，判断该请求是否是登录状态下发起的。
+
+### token 鉴权
+
+
