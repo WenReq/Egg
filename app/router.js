@@ -2,7 +2,7 @@
  * @Author: 温少昌 wenshaochang@huizhihuyu.com
  * @Date: 2024-03-05 14:06:10
  * @LastEditors: 温少昌 wenshaochang@huizhihuyu.com
- * @LastEditTime: 2024-03-08 17:15:14
+ * @LastEditTime: 2024-03-09 10:34:21
  * @FilePath: /egg/app/router.js
  * @Description: 约定式开发 router
  */
@@ -34,4 +34,6 @@ module.exports = app => {
   router.get('/api/user/get_userinfo', _jwt, controller.user.getUserInfo);
   // 修改个性签名
   router.post('/api/user/edit_userinfo', _jwt, controller.user.editUserInfo);
+  // 上传图像
+  router.post('/api/upload', controller.upload.upload);
 };

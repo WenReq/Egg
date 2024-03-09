@@ -2,7 +2,7 @@
  * @Author: 温少昌 wenshaochang@huizhihuyu.com
  * @Date: 2024-03-05 14:06:10
  * @LastEditors: 温少昌 wenshaochang@huizhihuyu.com
- * @LastEditTime: 2024-03-08 15:37:58
+ * @LastEditTime: 2024-03-09 10:49:52
  * @FilePath: /egg/config/config.default.js
  * @Description: 用于编写配置文件。`config/config.default.js` 文件，这个是 Egg 框架约定好的，你可以在内部设置一些全局的配置常量，在任何地方都可以通过 `app.config` 获取到 `config.default.js` 文件内的配置项。
  */
@@ -60,14 +60,28 @@ module.exports = appInfo => {
     agent: false,
   };
 
+  // 鉴权
   config.jwt = {
     // secret 加密字符串，将在后续用于结合用户信息生成一串 token。
     secret: 'wen'
   };
 
+  // 上传文件
+  config.multipart = {
+    mode: 'file'
+  };
+
+  // 跨域配置
+  config.cors = {
+    origin: '*', // 允许所有跨域访问
+    credentials: true, // 允许 Cookie 跨域
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH', // 允许的请求方法
+  }
+
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
+    uploadDir: 'app/public/upload',
   };
 
   return {

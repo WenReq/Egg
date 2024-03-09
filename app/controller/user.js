@@ -2,7 +2,7 @@
  * @Author: 温少昌 wenshaochang@huizhihuyu.com
  * @Date: 2024-03-08 14:58:02
  * @LastEditors: 温少昌 wenshaochang@huizhihuyu.com
- * @LastEditTime: 2024-03-08 17:10:25
+ * @LastEditTime: 2024-03-09 13:50:47
  * @FilePath: /egg/app/controller/user.js
  * @Description: 用户模块的控制器
  */
@@ -141,11 +141,12 @@ class UserController extends Controller {
             }
         }
     }
-    // 修改个性签名
+
+    // 修改个人信息
     async editUserInfo() {
         const { ctx, app } = this;
         // 通过 post 请求，在请求体中获取签名字段 signature
-        const { signature = '' } = ctx.request.body
+        const { signature = '', avatar = '' } = ctx.request.body
 
         try {
             let user_id
@@ -159,7 +160,8 @@ class UserController extends Controller {
             // 通过 service 方法 editUserInfo 修改 signature 信息。
             const result = await ctx.service.user.editUserInfo({
                 ...userInfo,
-                signature
+                signature,
+                avatar,
             });
 
             ctx.body = {
@@ -168,7 +170,8 @@ class UserController extends Controller {
                 data: {
                     id: user_id,
                     signature,
-                    username: userInfo.username
+                    username: userInfo.username,
+                    avatar,
                 }
             }
         } catch (error) {
