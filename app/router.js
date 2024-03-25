@@ -2,7 +2,7 @@
  * @Author: 温少昌 wenshaochang@huizhihuyu.com
  * @Date: 2024-03-05 14:06:10
  * @LastEditors: 温少昌 wenshaochang@huizhihuyu.com
- * @LastEditTime: 2024-03-09 10:34:21
+ * @LastEditTime: 2024-03-22 15:45:47
  * @FilePath: /egg/app/router.js
  * @Description: 约定式开发 router
  */
@@ -36,4 +36,18 @@ module.exports = app => {
   router.post('/api/user/edit_userinfo', _jwt, controller.user.editUserInfo);
   // 上传图像
   router.post('/api/upload', controller.upload.upload);
+
+  // 记账
+  // 添加账单
+  router.post('/api/bill/add', _jwt, controller.bill.add);
+  // 列表获取
+  router.get('/api/bill/list', _jwt, controller.bill.list);
+  // 获取详情
+  router.get('/api/bill/detail', _jwt, controller.bill.detail);
+  // 账单更新
+  router.post('/api/bill/update', _jwt, controller.bill.update);
+  // 删除账单
+  router.post('/api/bill/delete', _jwt, controller.bill.delete);
+  // 统计数据
+  router.get('/api/bill/data', _jwt, controller.bill.data); 
 };
